@@ -2,17 +2,22 @@
   "name": "skills-ranking-server",
   "version": "1.0.0",
   "description": "Server Side for Online Skills Ranking App",
-  "main": "app.js",
+  "main": "server.js",
+  "type": "module",
   "scripts": {
-    "start": "nodemon server.js",
-    "start:prod": "NODE_ENV=production nodemon server.js"
+    "start": "nodemon server.js"
   },
   "author": "thongdb",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^5.1.1",
+    "body-parser": "^1.20.3",
+    "cors": "^2.8.5",
     "dotenv": "^16.3.1",
-    "express": "4",
-    "mongoose": "5",
+    "express": "^4.18.2",
+    "helmet": "^6.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^6.7.0",
     "morgan": "^1.10.0",
     "slugify": "^1.6.6",
     "validator": "^13.11.0"
