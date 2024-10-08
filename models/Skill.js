@@ -8,6 +8,13 @@ const SkillSchema = new mongoose.Schema(
       min: 2,
       max: 50,
     },
+    description: String,
+    image: String,
+    creator: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
     active: Number,
   },
   { timestamps: true }
