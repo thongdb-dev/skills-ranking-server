@@ -9,6 +9,7 @@ export const getSkills = async (req, res) => {
       : {};
 
     const skillsQuery = Skill.find(filter)
+      .populate('creator', 'firstName lastName email')
       .skip((page - 1) * pageSize)
       .limit(Number(pageSize));
 
