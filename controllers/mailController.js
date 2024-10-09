@@ -6,12 +6,7 @@ export const sendMail = async (message) => {
   const PASSWORD = process.env.EMAIL_PASSWORD;
 
   const config = {
-    host: 'smtp-mail.outlook.com',
-    secureConnection: false,
-    port: 587,
-    tls: {
-      ciphers: 'SSLv3',
-    },
+    service: 'Gmail',
     auth: {
       user: EMAIL,
       pass: PASSWORD,
