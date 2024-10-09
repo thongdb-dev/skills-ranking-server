@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import Skill from '../models/Skill.js';
 
 export const getSkills = async (req, res) => {
