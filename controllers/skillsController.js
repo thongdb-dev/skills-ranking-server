@@ -9,11 +9,12 @@ export const getSkills = async (req, res) => {
       search = '',
       sort = '-createdAt',
     } = req.query;
-    const userId = new mongoose.Types.ObjectId(req.user.id); ;
+    const userId = new mongoose.Types.ObjectId(req.user.id);
 
-    const filter = search
-      ? { name: { $regex: search, $options: 'i' } }
-      : {};
+    const filter = search ? { name: { $regex: search, $options: 'i' } } : {};
+
+    const sortField = sort.startsWith('-') ? sort.substring(1) : sort;
+    const sortDirection = sort.startsWith('-') ? -1 : 1;
 
     const skillsQuery = Skill.aggregate([
       { $match: filter },
@@ -70,7 +71,7 @@ export const getSkills = async (req, res) => {
           'creator.__v': 0,
         },
       },
-      { $sort: { createdAt: sort === '-createdAt' ? -1 : 1 } },
+      { $sort: { [sortField]: sortDirection } },
       { $skip: (page - 1) * pageSize },
       { $limit: Number(pageSize) },
     ]);
