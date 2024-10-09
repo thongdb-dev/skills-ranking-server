@@ -29,7 +29,7 @@ export const register = async (req, res) => {
     );
 
     await sendActivateAccountEmail(savedUser, activationToken);
-    
+
     res.status(201).json(savedUser);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -53,6 +53,23 @@ export const login = async (req, res) => {
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
     delete user.password;
     res.status(200).json({ token, user });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const activateAccount = async (req, res) => {
+  try {
+    const { token } = req.params;
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.id;
+
+    const user = await User.findByIdAndUpdate(userId, { active: 1 }, { new: true });
+    
+    if (!user) return res.status(400).json({ error: "User not found." });
+
+    res.status(200).json({ message: "Account activated successfully!", user });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
