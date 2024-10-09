@@ -29,19 +29,16 @@ export const getMySkills = async (req, res) => {
 
 export const createMySkill = async (req, res) => {
   try {
-    const { skill, user, level } = req.body;
+    const { skill, level } = req.body;
+    const userId = req.user.id;
 
     if (!skill) {
       return res.status(400).json({ error: 'Skill is required.' });
     }
 
-    if (!user) {
-      return res.status(400).json({ error: 'User is required.' });
-    }
-
     const newMySkill = new MySkill({
       skill,
-      user,
+      user: userId,
       level: level ?? 0,
     });
 
