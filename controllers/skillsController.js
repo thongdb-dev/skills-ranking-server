@@ -2,17 +2,77 @@ import Skill from '../models/Skill.js';
 
 export const getSkills = async (req, res) => {
   try {
-    const { page = 1, pageSize = 10, search = '', sort = '-createdAt' } = req.query;
+    const {
+      page = 1,
+      pageSize = 10,
+      search = '',
+      sort = '-createdAt',
+    } = req.query;
+    const userId = req.user.id;
 
     const filter = search
-      ? { name: { $regex: search, $options: 'i' } } // 'i' option makes it case-insensitive
+      ? { name: { $regex: search, $options: 'i' } }
       : {};
 
-    const skillsQuery = Skill.find(filter)
-      .populate('creator', 'firstName lastName email')
-      .sort(sort)
-      .skip((page - 1) * pageSize)
-      .limit(Number(pageSize));
+    const skillsQuery = Skill.aggregate([
+      { $match: filter },
+      {
+        $lookup: {
+          from: 'myskills',
+          localField: '_id',
+          foreignField: 'skill',
+          as: 'mySkillData',
+        },
+      },
+      {
+        $addFields: {
+          achieved: {
+            $cond: {
+              if: {
+                $gt: [
+                  {
+                    $size: {
+                      $filter: {
+                        input: '$mySkillData',
+                        as: 'item',
+                        cond: { $eq: ['$$item.user', userId] },
+                      },
+                    },
+                  },
+                  0,
+                ],
+              },
+              then: true,
+              else: false,
+            },
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'creator',
+          foreignField: '_id',
+          as: 'creator',
+        },
+      },
+      {
+        $unwind: {
+          path: '$creator',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $project: {
+          mySkillData: 0,
+          'creator.password': 0,
+          'creator.__v': 0,
+        },
+      },
+      { $sort: { createdAt: sort === '-createdAt' ? -1 : 1 } },
+      { $skip: (page - 1) * pageSize },
+      { $limit: Number(pageSize) },
+    ]);
 
     const skills = await skillsQuery.exec();
     const totalCount = await Skill.countDocuments(filter);
