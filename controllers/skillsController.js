@@ -2,7 +2,7 @@ import Skill from '../models/Skill.js';
 
 export const getSkills = async (req, res) => {
   try {
-    const { page = 1, pageSize = 10, search = '' } = req.query;
+    const { page = 1, pageSize = 10, search = '', sort = '-createdAt' } = req.query;
 
     const filter = search
       ? { name: { $regex: search, $options: 'i' } } // 'i' option makes it case-insensitive
@@ -10,6 +10,7 @@ export const getSkills = async (req, res) => {
 
     const skillsQuery = Skill.find(filter)
       .populate('creator', 'firstName lastName email')
+      .sort(sort)
       .skip((page - 1) * pageSize)
       .limit(Number(pageSize));
 
