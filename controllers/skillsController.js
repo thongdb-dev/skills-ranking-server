@@ -8,7 +8,7 @@ export const getSkills = async (req, res) => {
       search = '',
       sort = '-createdAt',
     } = req.query;
-    const userId = req.user.id;
+    const userId = new mongoose.Types.ObjectId(req.user.id); ;
 
     const filter = search
       ? { name: { $regex: search, $options: 'i' } }
