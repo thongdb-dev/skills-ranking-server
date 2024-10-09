@@ -12,6 +12,6 @@ const router = express.Router();
 router.get('/', verifyToken, getMySkills);
 router.post('/', verifyToken, createMySkill);
 router.put('/:id/level', verifyToken, updateMySkillLevel);
-router.delete(':/id', verifyToken, deleteMySkill);
+router.delete('/:id', verifyToken, deleteMySkill);
 
 export default router;

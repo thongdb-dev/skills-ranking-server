@@ -1,16 +1,29 @@
-import MySkill from "../models/MySkill.js";
+import MySkill from '../models/MySkill.js';
 
 export const getMySkills = async (req, res) => {
   try {
-    const { page = 1, pageSize = 10, sort = '-createdAt' } = req.query;
-    const userId = req.user.id; 
+    const {
+      page = 1,
+      pageSize = 10,
+      sort = '-createdAt',
+      search = '',
+    } = req.query;
+    const userId = req.user.id;
+
+    const skillFilter = search
+      ? { $or: [{ name: { $regex: search, $options: 'i' } }] }
+      : {};
 
     const mySkillsQuery = MySkill.find({ user: userId })
-    .populate('skill', 'name description')
-    .populate('user', 'firstName lastName email')
-    .sort(sort)
-    .skip((page - 1) * pageSize)
-    .limit(Number(pageSize));
+      .populate({
+        path: 'skill',
+        match: skillFilter,
+        select: 'name description',
+      })
+      .populate('user', 'firstName lastName email')
+      .sort(sort)
+      .skip((page - 1) * pageSize)
+      .limit(Number(pageSize));
 
     const mySkills = await mySkillsQuery.exec();
     const totalCount = await MySkill.countDocuments({ user: userId });
@@ -48,7 +61,7 @@ export const createMySkill = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-}
+};
 
 export const updateMySkillLevel = async (req, res) => {
   try {
@@ -59,11 +72,13 @@ export const updateMySkillLevel = async (req, res) => {
     const mySkill = await MySkill.findOneAndUpdate(
       { _id: id, user: userId },
       { level },
-      { new: true }
+      { new: true },
     );
 
     if (!mySkill) {
-      return res.status(404).json({ error: 'MySkill entry not found or not authorized to update' });
+      return res
+        .status(404)
+        .json({ error: 'MySkill entry not found or not authorized to update' });
     }
 
     res.status(200).json(mySkill);
@@ -80,7 +95,9 @@ export const deleteMySkill = async (req, res) => {
     const mySkill = await MySkill.findOneAndDelete({ _id: id, user: userId });
 
     if (!mySkill) {
-      return res.status(404).json({ error: 'MySkill entry not found or not authorized to delete' });
+      return res
+        .status(404)
+        .json({ error: 'MySkill entry not found or not authorized to delete' });
     }
 
     res.status(200).json(mySkill);
