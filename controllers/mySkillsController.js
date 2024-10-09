@@ -26,6 +26,8 @@ export const getMySkills = async (req, res) => {
       .limit(Number(pageSize));
 
     const mySkills = await mySkillsQuery.exec();
+    const filteredMySkills = mySkills.filter((mySkill) => mySkill.skill !== null);
+
     const totalCount = await MySkill.countDocuments({ user: userId });
 
     res.status(200).json({
@@ -33,7 +35,7 @@ export const getMySkills = async (req, res) => {
       currentPage: Number(page),
       totalPages: Math.ceil(totalCount / pageSize),
       pageSize: Number(pageSize),
-      mySkills,
+      mySkills: filteredMySkills,
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
